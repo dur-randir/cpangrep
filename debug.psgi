@@ -1,4 +1,5 @@
 use Plack::Builder;
+use lib "$FindBin::RealBin/lib";
 use WWW::CPANGrep;
 
 builder {
