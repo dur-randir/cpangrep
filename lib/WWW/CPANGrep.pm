@@ -62,7 +62,7 @@ sub dispatch_request {
     my $redis = AnyEvent::Redis->new(host => $config->{"server.queue"});
     HTML::Zoom->from_file(TMPL_PATH . "/grep.html")
       ->select('#lastupdate')
-      ->replace_content($redis->get("cpangrep:lastindex")->recv);
+      ->replace_content($redis->get("cpangrep:lastindex")->recv // 'unknown');
   },
   sub () {
     [ 404, [ 'Content-type' => 'text/html' ], [ 'Not found' ] ]
