@@ -15,4 +15,4 @@
   Slabs = cpangrep:slabs
 
 [Matcher]
-  Concurrency = 16
+  Concurrency = 4
