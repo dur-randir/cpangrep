@@ -1,24 +1,31 @@
-#!/bin/sh
-CPAN=/srv/CPAN
-CPANGREP=$HOME/cpangrep
-CPANINDEX=/srv/CPAN-index
+#!/bin/bash
+
+HOME=/home/cpangrep
+CPAN=var/cpan
+CPANINDEX=var/slabs
+
+cd $HOME/proj
+source $HOME/perlbrew/etc/bashrc
+perlbrew use perl-blead
+
+# minicpan run as a separate syncer
+#minicpan -l $CPAN -r 'http://mirror.yandex.ru/mirrors/cpan/'
 
 # Bring it all down:
-killall starman
+pkill -f starman
 pkill -f cpangrep-matcher
-screen -S cpangrep -X quit
 
 sleep 2
 
 rm -rf $CPANINDEX/*
 echo flushall | redis-cli
 
-cd $CPANGREP
-bin/cpangrep-index --cpan_dir $CPAN --slab_dir $CPANINDEX
+bin/cpangrep-index --cpan_dir $CPAN --slab_dir $CPANINDEX >/tmp/reindex.log 2>&1
 
 # Wait a bit for indexing processes to finish
 sleep 30
 
 # Run it all in screen again:
-screen -dmS cpangrep starman -Ilib lib/WWW/CPANGrep.pm
-screen -S cpangrep -X screen -t matcher bin/cpangrep-matcher
+nohup starman -Ilib lib/WWW/CPANGrep.pm >/dev/null 2>&1 &
+nohup bin/cpangrep-matcher >/dev/null 2>&1 &
+
